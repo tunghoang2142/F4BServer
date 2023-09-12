@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using F4BBuddyAppWebService.Models;
+using Internal;
 
 namespace F4BBuddyAppWebService.Controllers
 {
@@ -30,6 +31,27 @@ namespace F4BBuddyAppWebService.Controllers
         public async Task<ActionResult<IEnumerable<Account>>> GetAllAccounts()
         {
             return await _context.Accounts.ToListAsync();
+        }
+
+        public async Task<ActionResult<IEnumerable<Account>>> Login(string? email, string? password)
+        {
+            //Console.WriteLine(email);
+            //Console.WriteLine(password);
+
+            if (email == null || password == null || _context.Accounts == null)
+            {
+                return NotFound();
+            }
+
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(m => m.Email == email && m.Password == password);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return Ok();
         }
 
         // GET: Accounts/Details/5
