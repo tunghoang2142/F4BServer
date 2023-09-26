@@ -54,6 +54,49 @@ namespace F4BBuddyAppWebService.Controllers
             return Ok();
         }
 
+        [HttpPost("Accounts/Register")]
+        public async Task<IActionResult> Register(string name, int age, string gender, string school, string password, string email)
+        {
+        if (string.IsNullOrEmpty(name) || age <= 0 || string.IsNullOrEmpty(gender) || string.IsNullOrEmpty(school) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(email))
+        {
+            return BadRequest("Invalid input parameters.");
+        }
+
+        var existingAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email);
+        if (existingAccount != null)
+        {
+            return Conflict("Email already exists.");
+        }
+
+        var newAccount = new Account
+        {
+            Email = email,
+            Password = password, // Note: Password should be hashed and salted before storing
+            Money = 0,
+            LevelCompleted = "0"
+        };
+
+        _context.Accounts.Add(newAccount);
+        await _context.SaveChangesAsync();
+
+        var newBuddy = new Buddy
+        {
+            AccountId = newAccount.Id,
+            FirstName = name,
+            Gender = gender,
+            Age = age,
+            School = school,
+            SchoolYear = 1,
+            GuardianEmail = email,
+            IsGuardianConsented = "Yes"
+        };
+
+        _context.Buddies.Add(newBuddy);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { Message = "Registration successful", AccountId = newAccount.Id, BuddyId = newBuddy.Id });
+        }
+
         // GET: Accounts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
