@@ -23,21 +23,19 @@ public partial class F4bContext : DbContext
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
-    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:F4BDBContext");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07532CD7AC");
+            entity.HasKey(e => e.Id).HasName("PK__Account__3214EC07450287F6");
 
             entity.ToTable("Account");
 
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.LevelCompleted)
-                .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.Password)
                 .HasMaxLength(100)
@@ -46,7 +44,7 @@ public partial class F4bContext : DbContext
 
         modelBuilder.Entity<AllStar>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__AllStar__3214EC07A705C155");
+            entity.HasKey(e => e.Id).HasName("PK__AllStar__3214EC07E98E690E");
 
             entity.ToTable("AllStar");
 
@@ -66,7 +64,7 @@ public partial class F4bContext : DbContext
 
         modelBuilder.Entity<Buddy>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Buddy__3214EC0727334D25");
+            entity.HasKey(e => e.Id).HasName("PK__Buddy__3214EC073EF9C78F");
 
             entity.ToTable("Buddy");
 
@@ -91,12 +89,12 @@ public partial class F4bContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Buddies)
                 .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK__Buddy__AccountId__3E52440B");
+                .HasConstraintName("FK__Buddy__AccountId__4E88ABD4");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC074AAF4386");
+            entity.HasKey(e => e.Id).HasName("PK__Feedback__3214EC07FA2664CB");
 
             entity.ToTable("Feedback");
 
@@ -109,11 +107,11 @@ public partial class F4bContext : DbContext
 
             entity.HasOne(d => d.AllStar).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.AllStarId)
-                .HasConstraintName("FK__Feedback__AllSta__412EB0B6");
+                .HasConstraintName("FK__Feedback__AllSta__5165187F");
 
             entity.HasOne(d => d.Buddy).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.BuddyId)
-                .HasConstraintName("FK__Feedback__BuddyI__4222D4EF");
+                .HasConstraintName("FK__Feedback__BuddyI__52593CB8");
         });
 
         OnModelCreatingPartial(modelBuilder);
