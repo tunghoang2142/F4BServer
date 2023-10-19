@@ -1,4 +1,6 @@
 using F4BBuddyAppWebService.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +10,14 @@ builder.Services.AddDbContext<F4bContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.SlidingExpiration = true;
+        options.AccessDeniedPath = "/Home/Error/";
+        options.LoginPath = "/";
+    });
 
 var app = builder.Build();
 
@@ -21,10 +31,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+});
 
 app.MapControllerRoute(
     name: "default",
