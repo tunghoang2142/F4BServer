@@ -22,7 +22,10 @@
                 @Html.DisplayNameFor(model => model.Money)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LevelCompleted)
+                @Html.DisplayNameFor(model => model.Level1Completed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Level2Completed)
             </th>
             <th></th>
         </tr>
@@ -40,7 +43,10 @@
                 @Html.DisplayFor(modelItem => item.Money)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LevelCompleted)
+                @Html.DisplayFor(modelItem => item.Level1Completed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Level2Completed)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

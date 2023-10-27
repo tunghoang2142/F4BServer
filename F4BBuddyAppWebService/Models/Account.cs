@@ -13,7 +13,9 @@ public partial class Account
 
     public int? Money { get; set; }
 
-    public string? LevelCompleted { get; set; }
+    public bool? Level1Completed { get; set; }
+
+    public bool? Level2Completed { get; set; }
 
     public virtual ICollection<Buddy> Buddies { get; set; } = new List<Buddy>();
 }
