@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using F4BBuddyAppWebService.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace F4BBuddyAppWebService.Controllers
 {
@@ -49,6 +50,27 @@ namespace F4BBuddyAppWebService.Controllers
             return View(buddy);
         }
 
+        public async Task<ActionResult<Buddy>> GetDetails()
+        {
+            // Get account id from cookie
+            int id = int.Parse(HttpContext.User.Claims.First(c => c.Type.Equals("Id")).Value);
+
+            if (id == null || _context.Buddies == null)
+            {
+                return NotFound();
+            }
+
+            // Find buddy
+            var buddy = await _context.Buddies.FirstOrDefaultAsync(m => m.AccountId == id);
+
+            if (buddy == null)
+            {
+                return NotFound();
+            }
+
+            return buddy;
+        }
+
         // GET: Buddies/Create
         public IActionResult Create()
         {
@@ -61,7 +83,7 @@ namespace F4BBuddyAppWebService.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,AccountId,FirstName,LastName,Gender,Age,School,SchoolYear,GuardianEmail,IsGuardianConsented")] Buddy buddy)
+        public async Task<IActionResult> Create([Bind("Id,AccountId,FirstName,LastName,Gender,Age,School,SchoolYear,GuardianEmail,IsGuardianConsented,Hobbies,Motivation")] Buddy buddy)
         {
             if (ModelState.IsValid)
             {
@@ -95,7 +117,7 @@ namespace F4BBuddyAppWebService.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AccountId,FirstName,LastName,Gender,Age,School,SchoolYear,GuardianEmail,IsGuardianConsented")] Buddy buddy)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,AccountId,FirstName,LastName,Gender,Age,School,SchoolYear,GuardianEmail,IsGuardianConsented,Hobbies,Motivation")] Buddy buddy)
         {
             if (id != buddy.Id)
             {
@@ -124,6 +146,43 @@ namespace F4BBuddyAppWebService.Controllers
             }
             ViewData["AccountId"] = new SelectList(_context.Accounts, "Id", "Id", buddy.AccountId);
             return View(buddy);
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        [Consumes("application/json")]
+        [Authorize]
+        public async Task<IActionResult> EditInfo([FromBody][Bind("FirstName,LastName,School,Hobbies,Motivation")] Buddy buddy)
+        {
+            // Get account id from cookie
+            int id = int.Parse(HttpContext.User.Claims.First(c => c.Type.Equals("Id")).Value);
+
+            // Get the current value
+            var baseBuddy = await _context.Buddies.FirstOrDefaultAsync(m => m.AccountId == id);
+
+            if (baseBuddy == null)
+            {
+                return NotFound();
+            }
+
+            // Update value
+            baseBuddy.FirstName = buddy.FirstName;
+            baseBuddy.LastName = buddy.LastName;
+            baseBuddy.School = buddy.School;
+            baseBuddy.Hobbies = buddy.Hobbies;
+            baseBuddy.Motivation = buddy.Motivation;
+            //buddy = baseBuddy;
+
+            try
+            {
+                _context.Update(baseBuddy);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
         }
 
         // GET: Buddies/Delete/5
@@ -159,14 +218,14 @@ namespace F4BBuddyAppWebService.Controllers
             {
                 _context.Buddies.Remove(buddy);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BuddyExists(int id)
         {
-          return (_context.Buddies?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Buddies?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

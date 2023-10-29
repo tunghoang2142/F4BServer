@@ -25,6 +25,10 @@ public partial class Buddy
 
     public string? IsGuardianConsented { get; set; }
 
+    public string? Hobbies { get; set; }
+
+    public string? Motivation { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
